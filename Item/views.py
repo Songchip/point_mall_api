@@ -23,7 +23,7 @@ class ItemViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['POST'])
     def purchase(self, request, *args, **kwargs):
 
-        count = int(request.data['count']);
+        count = int(request.data['count'])
 
         item = self.get_object()
         user = request.user
@@ -51,7 +51,7 @@ class ItemViewSet(viewsets.ModelViewSet):
         sid = transaction.savepoint()
         for i in items:
             item = Item.objects.get(id=i['item_id'])
-            count = int(i['count']);
+            count = int(i['count'])
 
             if (item.price) * count > user.point:
                 transaction.savepoint_rollback(sid)

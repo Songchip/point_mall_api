@@ -12,7 +12,7 @@ from django.contrib.auth.hashers import make_password
 
 class MeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    print("111")
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
@@ -45,3 +45,19 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin):
         serializer.save(
             password = make_password(self.request.data['password'])
         )
+
+    @action(detail=True, methods=['POST'])
+    def point_charge(self, request, *args, **kwargs):
+        print(request.data)
+        user_point = int(request.data['point'])
+        print(user_point)
+
+        user = request.user
+        print(user.point)
+        user.point += user_point
+        user.save()
+
+
+
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
