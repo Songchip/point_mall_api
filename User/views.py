@@ -46,6 +46,11 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin):
             password = make_password(self.request.data['password'])
         )
 
+    # /users/test/ 해야 불림
+    @action(detail=False, methods=['POST'])
+    def test(self, request, *args, **kwargs):
+        print("test")
+
     @action(detail=True, methods=['POST'])
     def point_charge(self, request, *args, **kwargs):
         print(request.data)
@@ -56,8 +61,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet, mixins.CreateModelMixin):
         print(user.point)
         user.point += user_point
         user.save()
-
-
 
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
