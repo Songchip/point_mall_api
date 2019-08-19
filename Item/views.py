@@ -1,7 +1,7 @@
 from pygments import console
 
-from .models import Item, UserItem, Category
-from .serializers import ItemSerializer, UserItemSerializer, CategorySerializer
+from .models import Item, UserItem, Category, History, HistoryItem
+from .serializers import ItemSerializer, UserItemSerializer, CategorySerializer, HistoryItemSerializer, HistorySerializer
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -35,6 +35,11 @@ class ItemViewSet(viewsets.ModelViewSet):
             user_item = UserItem.objects.get(user=user, item=item)
         except UserItem.DoesNotExist:
             user_item = UserItem(user=user, item=item)
+
+        history = History(user=request.user)
+        history.save()
+        HistoryItem(history=history, item=item, count=count).save()
+
         user_item.count += count
         user_item.save()
 
@@ -49,6 +54,10 @@ class ItemViewSet(viewsets.ModelViewSet):
         items = request.data['items']
 
         sid = transaction.savepoint()
+
+        history = History(user=request.user)
+        history.save()
+
         for i in items:
             item = Item.objects.get(id=i['item_id'])
             count = int(i['count'])
@@ -65,6 +74,8 @@ class ItemViewSet(viewsets.ModelViewSet):
             user_item.count += count
             user_item.save()
 
+            HistoryItem(history=history, item=item, count=count).save()
+
         transaction.savepoint_commit(sid)
 
         serializer = UserItemSerializer(user.items.all(), many=True)
@@ -80,3 +91,8 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         category = self.get_object()
         serializer = ItemSerializer(category.items.all(), many=True, context=self.get_serializer_context())
         return Response(serializer.data)
+
+
+class HistoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = History.objects.all()
+    serializer_class = HistorySerializer
