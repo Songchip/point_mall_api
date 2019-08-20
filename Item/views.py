@@ -1,8 +1,9 @@
 from pygments import console
 
-from .models import Item, UserItem, Category, History, HistoryItem
-from .serializers import ItemSerializer, UserItemSerializer, CategorySerializer, HistoryItemSerializer, HistorySerializer
+from .models import Item, UserItem, Category, History, HistoryItem, Tag
+from .serializers import ItemSerializer, UserItemSerializer, CategorySerializer, HistoryItemSerializer, HistorySerializer,TagSerializer
 from rest_framework import viewsets, permissions, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.db import transaction
@@ -19,6 +20,49 @@ class ItemViewSet(viewsets.ModelViewSet):
         permissions.IsAdminUser,
         And(IsPurchase, permissions.IsAuthenticated)
     ),)
+
+    def perform_create(self, serializer):
+        item = serializer.save()
+        category_ids = self.request.data['category_ids'].split(',')
+        categories = Category.objects.filter(id__in = category_ids)
+        item.categories.set(categories)
+
+        tags = self.request.data['tags'].split(',')
+        for tag in tags:
+            tag, is_created = Tag.objects.get_or_create(tag=tag)
+            item.tags.add(tag)
+
+    def perform_update(self, serializer):
+        item = serializer.save()
+        category_ids = self.request.data['category_ids'].split(',')
+        categories = Category.objects.filter(id__in = category_ids)
+        item.categories.set(categories)
+
+        tags = self.request.data['tags'].split(',')
+        tag_list = []
+        for tag in tags:
+            tag, is_created = Tag.objects.get_or_create(tag=tag)
+            tag_list.append(tag)
+
+        item.tags.set(tag_list)
+
+    @action(detail=True, methods=['POST','DELETE'])
+    def tags(self, request, *args, **kwargs):
+        item = self.get_object()
+        if request.method == 'POST':
+            for tag in request.data['tags']:
+                tag, is_created = Tag.objects.get_or_create(tag=tag)
+                item.tags.add(tag)
+        elif request.method == 'DELETE':
+            for tag in request.data['tags']:
+                try:
+                    tag = Tag.objects.get(tag=tag)
+                    item.tags.remove(tag)
+                except Tag.DoseNotExist:
+                    pass
+
+        return Response(self.get_serializer(item).data)
+
 
     @action(detail=True, methods=['POST'])
     def purchase(self, request, *args, **kwargs):
@@ -82,6 +126,10 @@ class ItemViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+
+
+
+
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -92,7 +140,58 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = ItemSerializer(category.items.all(), many=True, context=self.get_serializer_context())
         return Response(serializer.data)
 
+# // tag_id 말고 tag이름으로 url 불러오는법 몰라
+class TagsItems(APIView):
+
+    def get(self, request, tag):
+        items = []
+        try:
+            tag = Tag.objects.get(tag=tag)
+            items = tag.items.all()
+        except Tag.DoseNotExist:
+            pass
+
+        return Response(
+            ItemSerializer(items, context={'request':request}, many=True).data
+        )
+
+
 
 class HistoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = History.objects.all()
     serializer_class = HistorySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return History.objects.filter(user=self.request.user).order_by('-id')
+
+    @action(detail=True, methods=['POST'])
+    def refund(self, request, *args, **kwargs):
+        history = self.get_object()
+        user = request.user
+
+        if history.user != user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        elif history.is_refunded:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+        for history_item in history.items.all():
+            try:
+                user_item = UserItem.objects.get(user=user, item=history_item.item)
+                user_item.count -= history_item.count
+                if user_item.count > 0:
+                    user_item.save()
+                else:
+                    user_item.delete()
+
+                user.point += history_item.item.price * history_item.count
+
+            except UserItem.DoesNotExist:
+                pass
+
+        history.is_refunded = True
+        history.save()
+        user.save()
+
+        serializer = self.get_serializer(history)
+        return Response(serializer.data)

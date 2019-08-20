@@ -8,6 +8,7 @@ urlpatterns = [
     path('users/', include('User.urls.user_urls')),
     path('items/', include('Item.urls.item_urls')),
     path('categories/', include('Item.urls.category_urls')),
+    path('tags/', include('Item.urls.tags_urls')),
     path('me/', include('User.urls.me_urls')),
     path('media/uploads/item_images/<str:file_name>', views.image_view),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
