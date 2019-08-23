@@ -127,10 +127,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
-MEDIA_ROOT = 'media/'
-MEDIA_URL = '/media/'
-
 CORS_ORIGIN_ALLOW_ALL = True
 
 
@@ -143,3 +139,26 @@ REST_FRAMEWORK = {
 OAUTH2_PROVIDER = {
     'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore',
 }
+
+AWS_ACCESS_KEY_ID = 'ASIAQXKTM523AJN5M7GT'
+AWS_SECRET_ACCESS_KEY = '/BNi4O75xFEBiGQkhJnDBOoAHTnE/Xzl/ra6uYrZ'
+AWS_SESSION_TOKEN = 'FQoGZXIvYXdzEFoaDO4BhTg21ICxTTn8RCL/AWlD1tPXGqWZ342IcoMWX/CZtEeusnFLcz2iTuwu68ByROYw/Ln6Fa5rslu1zTWqlW1GVjzflnUAqXwnofhUYglcp3mGMydh1xP9ByITOYOUbPQdEgjYgWqjry+KeNf8JTJKb1QysiBwcJ++o+L5vZWLBQNiRuhvruQ3uy4d8IffLBC3I0UxEuZb9plzILeQVmIp8DyAAJV2mRTtTYbcD34TTPlKwTjsx8ooJjMIgcUAgYoF0//T/qe64fUTsFc3ZEQL2BPVZ4tGy+zrlS8307JlPnxStO1s3nrNG5wQPTZvmaVS85mNyCUWuVStVLwrn9QF32TbzfBiq6614HtI9yi15vzqBQ=='
+
+AWS_STORAGE_BUCKET_NAME = 'cdn.pointmall.scv' # 버킷이름
+AWS_S3_CUSTOM_DOMAIN = 'd39dy2hcyi57ic.cloudfront.net'    #cloude front의 도메인
+AWS_S3_URL = 'https://%s/' % AWS_S3_CUSTOM_DOMAIN
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+
+STATIC_URL = '/static/'
+STATIC_ROOT = 'static/'
+STATICFILES_STORAGE = 'ShoppingMall2.storages.StaticStorage'
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+AWS_LOCATION = 'assets/'
+ASSET_URL = '%s%s' % (AWS_S3_URL, AWS_LOCATION)
+
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'ShoppingMall2.storages.FilesStorage'
+
+MEDIA_ROOT = 'media/'
+MEDIA_URL = '/media/'
