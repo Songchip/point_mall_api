@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': 'point_mall',
         'USER': 'root',
         'PASSWORD': 'clqls4013*',
-        'HOST': 'point-mall.cbsoxrvgvaj7.us-east-1.rds.amazonaws.com',
+        'HOST': 'pointmall.cnjfuyskyb1k.ap-northeast-2.rds.amazonaws.com',
         'PORT': '3306'
     }
 }
@@ -140,11 +140,9 @@ OAUTH2_PROVIDER = {
     'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore',
 }
 
-AWS_ACCESS_KEY_ID = 'ASIAQXKTM523MZWAZOOL'
-AWS_SECRET_ACCESS_KEY = 'n9Ee7KUJMIcuL7um98K8HHRhBP1+oxTj5f87O1MC'
-AWS_SESSION_TOKEN = 'FQoGZXIvYXdzEKb//////////wEaDDaTwV4mIUACPmY6JyL/AZCmOQwE6M32CLyAZwgF+ZqhOyfD4yB6xL3rtVFCk+wUzBfakUXuQpDCR564XUs/XZA6z6uVO/frS/Yt+pATh1X1rlqVHSdPppjpTF8bf9mWWyYRvrQAhRsLfLqb1xgq0+N2eJmZ/AwjVXYqhd7p2RsL0mEUQ/OV8vsLJn1s0aNo7f6xd1IhqrmGqf0G2UMZtMQ05Y1EToyH2DTFK+ApBB79Q6W4IEvF6zNc9DT5aJEo/zxMd3Z75hTSu+1PLLgWF7g9nHF1PmoyQnHd29df+pEsJE48MycdDLno/ebVeTJL07Ymezt6/jGqPea2u2+pJC/3oAOIjnc2mBU5fXjJ+CjOto3rBQ=='
-AWS_STORAGE_BUCKET_NAME = 'cdn.pointmall.scv' # 버킷이름
-AWS_S3_CUSTOM_DOMAIN = 'd2cdyx3ftgy2ph.cloudfront.net'    #cloude front의 도메인
+
+AWS_STORAGE_BUCKET_NAME = 'cdn.pointmall.scv1' # 버킷이름
+AWS_S3_CUSTOM_DOMAIN = 'd2y94q7sjw86i1.cloudfront.net'    #cloude front의 도메인
 AWS_S3_URL = 'https://%s/' % AWS_S3_CUSTOM_DOMAIN
 AWS_S3_SIGNATURE_VERSION = 's3v4'
 
@@ -157,7 +155,7 @@ AWS_LOCATION = 'assets/'
 ASSET_URL = '%s%s' % (AWS_S3_URL, AWS_LOCATION)
 
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-DEFAULT_FILE_STORAGE = 'ShoppingMall2.storages.FilesStorage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 MEDIA_ROOT = 'media/'
 MEDIA_URL = '/media/'
